@@ -2,6 +2,17 @@
 {% set active_page = "PayFeed" %}
 {% block body %}
 
+
+
+
+
+<section id="PayFeed" class="PayFeed">
+<div class="container">
+    <div class="page-header text-center">
+        <h1><strong>Payment Confirmation Gateway</strong></h1>
+        <h3>Check your Travel Details Here <button onclick="document.location='{{ url_for('travellerInfo') }}'"  class="btn  btn-success navbar-btn ">My Details</button></h3>
+    </div>
+
 {% with messages = get_flashed_messages() %}
    {% if messages %}
       {% for message in messages %}
@@ -15,16 +26,6 @@
       {% endfor %}
    {% endif %}
 {% endwith %}
-
-
-
-<section id="PayFeed" class="PayFeed">
-<div class="container">
-    <div class="page-header text-center">
-        <h1><strong>Credit Card Payment Gateway</strong></h1>
-        <h3>Check your Travel Details Here <button onclick="document.location='{{ url_for('travellerInfo') }}'"  class="btn  btn-success navbar-btn ">My Details</button></h3>
-    </div>
-
 
     <!-- Credit Card Payment Form - START -->
     <div class="container">

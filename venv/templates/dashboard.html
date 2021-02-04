@@ -45,7 +45,19 @@
     </div>
   </nav>
   </header>
-
+{% with messages = get_flashed_messages() %}
+   {% if messages %}
+      {% for message in messages %}
+        
+        <div class="container">
+                <div class="alert alert-info alert-dismissible fade in">
+                  <center>  <a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                    {{ message }}</center>
+                </div>
+        </div>
+      {% endfor %}
+   {% endif %}
+{% endwith %}
 
     <!-- Main Content -->
 <div class="container">
@@ -60,7 +72,7 @@
             <th>First Name</th>
             <th>Last Name</th>
             <th>Number</th>
-            <th>Password Hash</th>
+           <!-- <th>Password Hash</th>-->
           </tr>
         </thead>
         <tbody>
@@ -71,7 +83,7 @@
             <td>{{pkg.firstname}}</td>
             <td>{{pkg.lastname}}</td>
             <td>{{pkg.number}}</td>
-            <td>{{pkg.password_hash}}</td>
+          <!-- <td>{{pkg.password_hash}}</td> -->
           </tr>  
           {% endfor %}
         </tbody>
@@ -201,7 +213,7 @@
             <th>Total Amount</th>
             <th>Place Booked</th>
             <th>User ID</th>
-            <th>Package ID</th>
+            
             <th>Delete</th>
           </tr>
         </thead>
@@ -210,10 +222,9 @@
           <tr>
             <td>{{pkg.id}}</td>
             <td>{{pkg.email}}</td>
-            <td>{{pkg.amt}}</td>
+            <td>{{pkg.total_amount}}</td>
             <td>{{pkg.bookedpack}}</td>
             <td>{{pkg.userid}}</td>
-            <td>{{pkg.packageid}}</td>
             <td><a href="/delete/payment/{{pkg.id}}"><button class="btn btn-danger">Delete</button></a></td>
           </tr>
           {% endfor %}
@@ -245,7 +256,7 @@
             <td>{{pkg.phone_num}}</td>
             <td>{{pkg.date}}</td>
             <td>{{pkg.msg}}</td>
-            <td><a href="/delete/contact/{{pkg.id}}"><button class="btn btn-info">Solve It</button></a></td>
+            <td><a href="/delete/contact/{{pkg.id}}"><button class="btn btn-danger">Solve It</button></a></td>
           </tr>
           {% endfor %}
         </tbody>
@@ -259,7 +270,7 @@
           <tr>
             <th>id</th>
             <th>User's Email</th>
-            <th>User's Name</th>
+            <th>Name</th>
             <th>Scale</th>
             <th>Rating</th>
             <th>Feedback</th>
@@ -275,7 +286,7 @@
             <td>{{pkg.scale}}</td>
             <td>{{pkg.rating}}</td>
             <td>{{pkg.feedback}}</td>
-            <td><a href="/delete/feedback/{{pkg.id}}"><button class="btn btn-info">Confirm It</button></a></td>
+            <td><a href="/delete/feedback/{{pkg.id}}"><button class="btn btn-danger">Confirm It</button></a></td>
           </tr>
           {% endfor %}
         </tbody>

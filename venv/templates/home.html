@@ -7,6 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Travel and Tourism</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css')}}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css')}}">
@@ -32,51 +34,15 @@
             <h1><center>Travel and Tourism</center></h1>
           </div>
          
-        <button onclick="document.location='{{ url_for('login') }}'" style="width:auto;float: right;" class="btn  btn-success navbar-btn navbar-right"> Login</button>
-        <button onclick="document.location='{{ url_for('signup') }}'" style="width:auto;float: right;" class="btn  btn-primary navbar-btn navbar-right"> SignUp </button>
-          
-          
-      
+          <button onclick="document.location='{{ url_for('login') }}'" style="width:auto;float: right;" class="btn  btn-success navbar-btn navbar-right"> Login</button>
+          <button onclick="document.location='{{ url_for('signup') }}'" style="width:auto;float: right;" class="btn  btn-primary navbar-btn navbar-right"> SignUp </button>
+        </div>
       </div>
-         
-          
-
-<!-- <div id="id01" class="modal">
-  
-  <form class="modal-content animate" action="http://localhost:5000/index" method="post" name="sendmessage">
-    <div class="imgcontainer">
-      <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">Back</span>
-      <center><img src="{{ url_for('static', filename='images/profile.png')}}" alt="Avatar" class="avatar"></center>
-      
-    </div>
-
-    <div class="container">
-      <label for="uname"><b>Username</b></label>
-      <input type="text" placeholder="Enter Username" name="uname" required><br>
-      <label for="psw"><b>Email</b></label>
-      <input type="text" placeholder="Enter Email" name="email" required>
-      <label for="psw"><b>Password</b></label>
-      <input type="password" placeholder="Enter Password" name="psw" required>
-        
-      <button onclick="location.href='{{url_for('index')}}" type="submit">Login</button><br>
-      <label>
-        <input type="checkbox" checked="checked" name="remember"> Remember me
-      </label>
-    </div>
-
-    <center><div class="cancel_signup" style="background-color:#f1f1f1">
-      <button type="button" onclick="document.getElementById('id01').style.display='none'" class="cancelbtn">Cancel</button></center>
-      
-      <div id="Signup"><center>Do not have account?<a href="{{ url_for('signup') }}"><h3>Sign Up</a></h3></div></center>
-    </div>
-    </form>
-
-	</div>
-        
-    </div><!-- .container -->
-     
+      </div>  
     </nav><!-- #header-nav -->
   </header>
+
+  
   <section  class="container-fluid" >
   	<h1 style="font-family:verdana;"><center><strong>WELCOME</strong></center></h1><br>
   	<h1 style="font-family:verdana;"><center><strong>TO WANDERSTRUCK TRAVELS</strong></center></h1>
@@ -86,45 +52,58 @@
   <section  class="work">
       <div class="container text-center">
 
-      <div class="section-title" data-aos="fade-up">
+        <div class="section-title" data-aos="fade-up">
           <h2><strong>How It Works</strong></h2>
           
         
-  <div class="row ">
-    <div class="col-md-4">
-      <center><img src="{{ url_for('static', filename='images/account.jpg')}}" class="img-responsive " style="width:50%" alt="Image"></center>
-      <p><h4><b>Create an Account</b></h4></p>
+          <div class="row ">
+            <div class="col-md-4">
+              <center><img src="{{ url_for('static', filename='images/account.jpg')}}" class="img-responsive " style="width:50%" alt="Image"></center>
+              <p><h4><b>Create an Account</b></h4></p>
+            </div>
+            <div class="col-md-4"> 
+              <center><img src="{{ url_for('static', filename='images/booking.jpg')}}" class="img-responsive" style="width:50%" alt="Image"></center>
+              <p><h4><b>Start Booking</b></h4></p>    
+            </div>
+            <div class="col-md-4">
+              <center><img src="{{ url_for('static', filename='images/travel.jpg')}}" class="img-responsive " style="width:50%" alt="Image"></center>
+              <p><h4><b>Travel Your Dream Place</b></h4></p> 
+            </div>
+          </div>
+        </div>
     </div>
-    <div class="col-md-4"> 
-      <center><img src="{{ url_for('static', filename='images/booking.jpg')}}" class="img-responsive" style="width:50%" alt="Image"></center>
-      <p><h4><b>Start Booking</b></h4></p>    
-    </div>
-    <div class="col-md-4">
-      <center><img src="{{ url_for('static', filename='images/travel.jpg')}}" class="img-responsive " style="width:50%" alt="Image"></center>
-      <p><h4><b>Travel Your Dream Place</b></h4></p> 
-    </div>
-  </div>
-</div>
-</div>
-</section>
-
-
-
-
-<!--
-<script>
-// Get the modal
-var modal = document.getElementById('id01');
-
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-    if (event.target == modal) {
-        modal.style.display = "none";
-    }
-}
-</script> -->
-
+  </section>
+<h3>  <p>We would <i class="fa fa-heart" style="font-size:18px;color:red"></i> <a href="/feedback" style="color: #0000FF;">Your Suggestions/Feedback</a></p></h3>
 {% endblock %}
+
+
+<!--Contact Form-->
+<button class="open-button" onclick="openForm()">Facing any issues?<br>Contact us</button>
+
+<div class="form-popup" id="myForm">
+  <form action="/contact" class="form-container">
+    <h1><center><b>Get in Touch with Us</b></center></h1>
+
+    <button type="submit" class="btn">Contact us</button>
+    <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+  </form>
+</div> 
+</div>
+
+
+
+
+<script>
+/* Contact Form */
+function openForm() {
+  document.getElementById("myForm").style.display = "block";
+}
+
+function closeForm() {
+  document.getElementById("myForm").style.display = "none";
+}
+</script>
+
 </body>
 </html>
 

@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy,event
 from forms import  LoginForm, RegistrationForm
 from flask_mail import Mail
 import json, os, math
-from datetime import datetime,timedelta
+from datetime import datetime,timedelta,date
 from flask_login import UserMixin, LoginManager, login_required, login_user, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
@@ -56,6 +56,7 @@ class User(UserMixin,db.Model):
     payment=db.relationship('Payment',backref=db.backref('pay'),lazy='dynamic')
     hotel=db.relationship('Hotel',backref=db.backref('hotl'),lazy='dynamic')
     transp=db.relationship('Transport',backref=db.backref('trans'),lazy='dynamic')
+    
    
 
     def __repr__(self): 
@@ -77,7 +78,7 @@ class Contact(db.Model):
     name=db.Column(db.String(12), nullable=False)
     phone_num = db.Column(db.String(12), nullable=False)
     msg = db.Column(db.String(320), nullable=False)
-    date = db.Column(db.String(12), nullable=True)
+    date = db.Column(db.Integer, nullable=True)
     
 
 class Feedback(db.Model):
@@ -89,6 +90,7 @@ class Feedback(db.Model):
     scale=db.Column(db.String(64))
     rating=db.Column(db.String(64))
     feedback=db.Column(db.String(320))
+    
 
 class Package(db.Model):
     __tablename__="package"
@@ -98,9 +100,9 @@ class Package(db.Model):
     place=db.Column(db.String(80),nullable=False)
     numOfDays=db.Column(db.String(80), nullable=False)
     estimated_cost=db.Column(db.String(80), nullable=False)
-    date_booked=db.Column(db.String(80),default = datetime.date,nullable=False)
+    date_booked=db.Column(db.String(80),default = datetime.now,nullable=False)
     userid=db.Column(db.Integer, db.ForeignKey('user.id',onupdate="cascade"))
-    payments=db.relationship('Payment',backref='packages')
+    
 
 
 
@@ -134,10 +136,10 @@ class Transport(db.Model):
 class Payment(db.Model):
     id=db.Column(db.Integer,primary_key=True)
     email=db.Column(db.String(80),nullable=False)
-    amt=db.Column(db.String(80),nullable=False)
+    total_amount=db.Column(db.String(80),nullable=False)
     bookedpack=db.Column(db.String(80),nullable=False)
     userid = db.Column(db.Integer, db.ForeignKey('user.id',onupdate="cascade"))
-    packageid=db.Column(db.Integer,db.ForeignKey('package.id',onupdate="cascade"))
+    
     
 
 db.create_all()
@@ -199,7 +201,7 @@ def login():
                 login_user(user, remember=form.remember.data)
                 render_template('index.html',current_user=user)
                 next_page = url_for('index')
-                flash('login successfully')
+                flash('Login Successfully ')
                 return redirect(next_page) if next_page else redirect(url_for('index', _external=True, _scheme='https'))
                 
             else:
@@ -211,9 +213,9 @@ def login():
 
 
 @app.route('/about')
+@login_required
 def about():
     return render_template('about.html')
-
 
 
 
@@ -225,10 +227,13 @@ def contact():
             name = request.form.get('name')
             phone = request.form.get('phone')
             message = request.form.get('message')
-            contactme = Contact(email = email,name=name, phone_num = phone, msg = message, date= datetime.now() )
-            db.session.add(contactme)
-            db.session.commit()
-            flash('We will get in touch soon!')
+            try:
+                contactme = Contact(email = email,name=name, phone_num = phone, msg = message, date= datetime.now() )
+                db.session.add(contactme)
+                db.session.commit()
+                flash('We will get in touch soon!')
+            except:
+                flash('Sorry Could not contact us...Please try again!! ')
     return render_template('contact.html')
         
 
@@ -353,13 +358,15 @@ def package():
             estimated_cost=9000
             
         
-        
-        entry=Package(email=current_user.email,package_name=package_name,place=place,numOfDays=numOfDays,estimated_cost=estimated_cost,date_booked=datetime.today().strftime('%Y-%m-%d %H:%M:%S'),pkgs=current_user)
-        db.session.add(entry)
-        db.session.commit()
+        try:
+            entry=Package(email=current_user.email,package_name=package_name,place=place,numOfDays=numOfDays,estimated_cost=estimated_cost,date_booked=datetime.today().strftime('%Y-%m-%d %H:%M:%S'),pkgs=current_user)
+            db.session.add(entry)
+            db.session.commit()
 
-        flash('Travel Package is added')
-        return redirect(url_for('hotel',_external=True))
+            flash('Travel Package is added')
+            return redirect(url_for('hotel',_external=True))
+        except:
+            flash('There was problem adding package')
 
     
     return render_template('package.html')
@@ -373,6 +380,8 @@ def hotel():
             pk_days=db.session.query(Package).filter(current_user.email==Package.email).all()
             checkin_date = request.form.get('startdate')
             pn,pl=[],[]
+
+            
             #iterate through package
             for i in  pk_days:
                 pn.append(i.numOfDays)
@@ -388,14 +397,25 @@ def hotel():
                 else:
                     i+=1
 
-            checkout_date= datetime.strptime(checkin_date, '%Y-%m-%d').date() + timedelta(int(pdays))
-            cost= request.form.get('cost')
-            star_type=request.form.get('example')
-            accomandation = Hotel(email = current_user.email,checkin_date=checkin_date, checkout_date =checkout_date,place=place, cost= cost,star_type=star_type,hotl=current_user )
-            db.session.add(accomandation)
-            db.session.commit()
-            flash('Travel Accomandation data added ')
-            return redirect(url_for('transport',_external=True))
+            
+            today = date.today()
+            try:
+                startdate=datetime.strptime(checkin_date, '%Y-%m-%d').date()
+                if startdate >= today:
+                    checkin_date=startdate
+                    checkout_date= startdate + timedelta(int(pdays))
+                    cost= request.form.get('cost')
+                    star_type=request.form.get('example')
+                else:
+                    raise Exception
+                
+                accomandation = Hotel(email = current_user.email,checkin_date=checkin_date, checkout_date =checkout_date,place=place, cost= cost,star_type=star_type,hotl=current_user )
+                db.session.add(accomandation)
+                db.session.commit()
+                flash('Travel Accomandation data added ')
+                return redirect(url_for('transport',_external=True))
+            except:
+                flash('Accomandation could not be added check details Entered')
     
     return render_template('hotel.html') 
 
@@ -414,10 +434,11 @@ def transport():
                 cost=700
             else:
                 cost=1000
-            start_date= request.form.get('s_date')
+            startdate= request.form.get('s_date')
             boarding_place= request.form.get('myCountry')
             boarding_time=request.form.get('r_time')
 
+            today = date.today()
             #iterate through package
             for i in  pkg:
                 pn.append(i.place)
@@ -430,12 +451,23 @@ def transport():
                     break
                 else:
                     i+=1
-    
-            transport=Transport(email=current_user.email,mode_of_transport=transportmode,trvcost=cost,start_date=start_date,boarding_place=boarding_place,place=p,boarding_time=boarding_time,trans=current_user)
-            db.session.add(transport)
-            db.session.commit()
-            flash('Transportation Details is added ')
-            return redirect(url_for('payment',_external=True))
+
+
+            
+            try: 
+                startdate=datetime.strptime(startdate, '%Y-%m-%d').date()
+                if startdate >= today:
+                    start_date=startdate
+                else:
+                    raise Exception
+
+                transport=Transport(email=current_user.email,mode_of_transport=transportmode,trvcost=cost,start_date=start_date,boarding_place=boarding_place,place=p,boarding_time=boarding_time,trans=current_user)
+                db.session.add(transport)
+                db.session.commit()
+                flash('Transportation Details is added ')
+                return redirect(url_for('payment',_external=True))
+            except:
+                flash('Transportation could not be added check details Entered')
     
 
     return render_template('transport.html') 
@@ -479,17 +511,22 @@ def payment():
                 i+=1
 
         totl = amt1 + amt2 + amt3
-        pi=Package.query.filter(Package.email==current_user.email).first()
-        ent=Payment(email=current_user.email,amt=totl,bookedpack=p,pay=current_user,packages=pi)
-        db.session.add(ent)
-        db.session.commit()
+        
+        
+        try:
+            ent=Payment(email=current_user.email,total_amount=totl,bookedpack=p,pay=current_user)
+            db.session.add(ent)
+            db.session.commit()
 
-        flash('Payment Successful')
-        return render_template('payment.html',amt1=amt1,amt2=amt2,amt3=amt3,totl=totl)
+            flash('Payment Successfully Confirmed')
+            return render_template('payment.html',amt1=amt1,amt2=amt2,amt3=amt3,totl=totl)
+        except:
+            flash('There was problem in making payment')
 
     pkg=db.session.query(Package).filter(Package.email==current_user.email).all()
     hotl=db.session.query(Hotel).filter(Hotel.email==current_user.email).all()    
     trans=db.session.query(Transport).filter(Transport.email==current_user.email).all() 
+
 
     lp,lh,lt=[],[],[]  # list for costs
 
@@ -528,18 +565,22 @@ def payment():
 
 
 @app.route('/feedback',methods=['GET','POST'])
-@login_required
+
 def feedback():
     if(request.method=='POST'):
+        name=request.form.get('username')
+        email=request.form.get('email')
         scale=request.form.get('scale')
         rate=request.form.get('rating')
         msg=request.form.get('subject')
 
-        feed=Feedback(username=current_user.firstname,email=current_user.email,scale=scale,rating=rate,feedback=msg)
-        db.session.add(feed)
-        db.session.commit()
-        flash('Thanks for the Feedback ')
-            
+        try:
+            feed=Feedback(username=name,email=email,scale=scale,rating=rate,feedback=msg)
+            db.session.add(feed)
+            db.session.commit()
+            flash('Thank you for the Feedback :) ')
+        except:
+            flash('There was Problem adding Feedback')        
 
     return render_template('feedback.html')
 
@@ -559,7 +600,7 @@ def travellerInfo():
     lp,lh,lt=[],[],[]
     pn,pd=[],[]
     cin,cout=[],[]
-    tm,tb=[],[]
+    tm,tb,bm=[],[],[]
     pkg=db.session.query(Package).filter(Package.email==current_user.email).all()
     hotl=db.session.query(Hotel).filter(Hotel.email==current_user.email).all() 
     trans=db.session.query(Transport).filter(Transport.email==current_user.email).all() 
@@ -583,6 +624,7 @@ def travellerInfo():
         lt.append(i.trvcost)
         tm.append(i.mode_of_transport)
         tb.append(i.boarding_place)
+        bm.append(i.boarding_time)
 
     i=0
 
@@ -595,7 +637,7 @@ def travellerInfo():
             ckin=cin[i]
             pname=pn[i]
             pdays=pd[i]
-            transb,transm=tb[i],tm[i]
+            transb,transm,transt=tb[i],tm[i],bm[i]
             break
         else:
             i+=1
@@ -604,7 +646,7 @@ def travellerInfo():
 
 
     
-    return render_template('travellerInfo.html',boardp=transb,tranmode=transm,ckod=ckot,ckid=ckin,pname=pname,pdays=pdays,user=current_user,total=totl,trans=trans,amt1=amt1,amt2=amt2,amt3=amt3)
+    return render_template('travellerInfo.html',boardp=transb,boardtm=transt,tranmode=transm,ckod=ckot,ckid=ckin,pname=pname,pdays=pdays,user=current_user,total=totl,trans=trans,amt1=amt1,amt2=amt2,amt3=amt3)
 
 
 @app.route('/delete/package/<int:id>')
@@ -614,6 +656,7 @@ def delete(id):
         try:
             db.session.delete(deletePkg)
             db.session.commit()
+            flash('Package Info successfully Deleted')
             return redirect('/dashboard')
         except:
             return 'There was an issue to delete task'
@@ -625,6 +668,7 @@ def deleteT(id):
         try:
             db.session.delete(deletetrns)
             db.session.commit()
+            flash('Transportation info successfully deleted ')
             return redirect('/dashboard')
         except:
             return 'There was an issue to delete task'
@@ -636,6 +680,7 @@ def deleteC(id):
         try:
             db.session.delete(deleteCont)
             db.session.commit()
+            flash('Issue resolved')
             return redirect('/dashboard')
         except:
             return 'There was an issue to delete task'
@@ -647,6 +692,7 @@ def deletePm(id):
         try:
             db.session.delete(deletePay)
             db.session.commit()
+            flash('Payment tansaction successfully deleted')
             return redirect('/dashboard')
         except:
             return 'There was an issue to delete task'
@@ -659,7 +705,9 @@ def deleteF(id):
         try:
             db.session.delete(deleteFeed)
             db.session.commit()
+            flash('Feedback Taken into Consideration')
             return redirect('/dashboard')
+            
         except:
             return 'There was an issue to delete task'
 
@@ -670,6 +718,7 @@ def deleteH(id):
         try:
             db.session.delete(deleteHotl)
             db.session.commit()
+            flash('Accomandation info  successful Deleted')
             return redirect('/dashboard')
         except:
             return 'There was an issue to delete task'
@@ -754,6 +803,7 @@ def editT(id):
         pos=['Bus','Train','Flight','Cruise']
         post = Transport.query.filter(Transport.id==id).first()
         return render_template('edit_transport.html', post=post,pos=pos, id=id)
+
 
 if __name__=="__main__":
     app.run(debug=True)
