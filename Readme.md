@@ -8,6 +8,20 @@
 * Users can also choose Accommodation and Transportation as per their convenience.
 * After all selections are done they can check their details and Confirm payment. If facing any Difficulties or queries can Contact Administrator who can do the needful.
 ----
+
+## How To Use 🔧
+
+From your command line:
+
+```bash
+
+# Clone this repository in Git Bash
+$ git clone https://github.com/TechieMeSB/DBMS_MiniProject.git
+
+# Go into the repository
+$ cd DBMS_MiniProject
+```
+----
 ##### Register and Login Page  
 <div >
   <img src="OutputSS/op1.png" width="250">
